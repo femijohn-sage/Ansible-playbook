@@ -1,0 +1,35 @@
+- hosts: localhost
+  become: yes
+  gather_facts: false
+  tasks:
+    - name: SGs.
+      ec2_group:
+        name: Some_Security_Group
+        description: asdf
+        region: us-east-1
+        rules:
+          - proto: tcp
+            from_port: 443
+            to_port: 443
+            cidr_ip: 0.0.0.0/0
+          - proto: tcp
+            from_port: 22
+            to_port: 22
+            cidr_ip: 34.201.77.79/32
+    - name: make the ec2
+      amazon.aws.ec2:
+        key_name: web
+        region: us-east-1
+        instance_type: t2.nano
+        image: ami-0747bdcabd34c712a
+        wait: yes
+        wait_timeout: 500
+        group: asdf
+        count: 1
+        volumes:
+          - device_name: /dev/xvda
+            volume_type: gp2
+            volume: 30
+        monitoring: yes
+        assign_public_ip: false
+        group: Some_Security_Group
